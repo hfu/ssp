@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {}
+.stroke { fill: none; stroke: #000; stroke-width: 3px; }
+.fill { fill: #fff; }
+.graticule { fill: none; stroke: #777; stroke-width: .5px; stroke-opacity: .5; }
+.land { fill: #ffffd9; stroke: #222; stroke-width: .5px }
+</style>
+<h1>small scale projection</h1>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/d3.geo.projection.v0.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script>
+var width = 960, height = 500
+var options = [
+  {name: "Geographic - 11", projection: d3.geo.equirectangular().rotate([-11, 0])},
+  {name: "Robinson - 11", projection: d3.geo.robinson().rotate([-11, 0])},
+  {name: "Winkel Tripel - 11", projection: d3.geo.winkel3().rotate([-11, 0])}
+]
+for(var i in options) {
+  var projection = options[i].projection
+  options[i]['path'] = d3.geo.path().projection(projection)
+  var graticule = d3.geo.graticule()
+  d3.select("body").append("h2").text(options[i]['name'])
+  options[i]['svg'] = d3.select("body").append("svg").attr("width", width).attr("height", height)
+  options[i]['svg'].append("defs").append("path").datum({type: "Sphere"}).attr("id", "sphere").attr("d", options[i]['path'])
+  options[i]['svg'].append("use").attr("class", "stroke").attr("xlink:href", "#sphere")
+  options[i]['svg'].append("use").attr("class", "fill").attr("xlink:href", "#sphere")
+  options[i]['svg'].append("path").datum(graticule).attr("class", "graticule").attr("d", options[i]['path'])
+}
+//
+d3.json("https://d3js.org/world-110m.v1.json", function(error, world) {
+  if (error) throw error
+  for(var i in options) {
+    options[i]['svg'].insert("path", ".graticule").datum(topojson.feature(world, world.objects.land))
+    .attr("class", "land").attr("d", options[i]['path'])
+  }
+})
+</script>

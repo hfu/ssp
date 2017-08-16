@@ -25,7 +25,7 @@ var work_on = function(name, projection) {
 
   d3.json("https://d3js.org/world-110m.v1.json", function(error, world) {
     if (error) throw error
-    svg.insert("path", ".graticule").datum(topojson.feature(world, world.objects.bnda))
+    svg.insert("path", ".graticule").datum(topojson.feature(world, world.objects.land))
       .attr("class", "land").attr("d", path)
   })
 }
